@@ -1,0 +1,435 @@
+<!--
+========================================================
+正版软件导航站 － 单文件演示版（带详细中文注释）
+作者：你
+功能：
+1. 顶部搜索框（实时过滤）
+2. 分类宫格（Windows / macOS / 设计 / 开发 …）
+3. 软件卡片（Logo、简介、官网按钮）
+4. 点击“官网”先到过渡页（防权重流失）
+5. 响应式布局，移动端优先
+========================================================
+-->
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <!-- 让手机端默认 100% 宽度，避免缩放 -->
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+  <title>正版软件库 | 安全直达官网</title>
+
+  <!-- 简单嵌入式样式，无需额外 CSS 文件 -->
+  <style>
+    /* 定义全局变量：主色调、圆角、最大宽度 */
+    :root {
+      --primary: #0ea5e9;
+      --radius: 12px;
+      --maxw: 1280px;
+    }
+    * {
+      box-sizing: border-box;   /* 统一盒模型，方便计算宽度 */
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f6f8fa;
+      color: #222;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ===== 顶部导航栏 ===== */
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;   /* 粘性定位，下拉时始终可见 */
+      top: 0;
+      z-index: 10;
+    }
+    .inner {
+      max-width: var(--maxw);
+      margin: auto;       /* 水平居中 */
+      padding: 0 1rem;    /* 左右留空，手机更友好 */
+    }
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    #search {
+      width: 100%;
+      max-width: 420px;
+      padding: 0.6rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: var(--radius);
+      font-size: 1rem;
+    }
+
+    /* ===== 分类宫格 ===== */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 1rem 0;
+    }
+    .tag {
+      padding: 0.4rem 0.9rem;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .tag:hover,
+    .tag.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* ===== 软件卡片网格 ===== */
+    main {
+      padding: 1.5rem 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.2rem;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);   /* 轻微上浮效果 */
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    }
+    .card-hd {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .card-logo {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      border-radius: var(--radius);
+      border: 1px solid #f3f4f6;
+    }
+    .card-title {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .card-desc {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #555;
+      flex: 1;   /* 让描述区域自动撑开，按钮始终底部对齐 */
+    }
+    .card-ft {
+      margin-top: 1rem;
+      text-align: right;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 1.2rem;
+      background: var(--primary);
+      color: #fff;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: #0284c7;
+    }
+
+    /* ===== 页脚 ===== */
+    footer {
+      text-align: center;
+      padding: 2rem 0;
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ****** 头部 ****** -->
+  <header>
+    <div class="inner top">
+      <!-- 左侧 Logo -->
+      <div class="logo">正版软件库</div>
+
+      <!-- 右侧搜索框 -->
+      <input id="search" placeholder="搜索软件名称或拼音…" autocomplete="off" />
+    </div>
+
+    <!-- 分类宫格 -->
+    <div class="inner">
+      <div class="tags">
+        <!-- 默认选中“全部” -->
+        <div class="tag active" data-cate="all">全部</div>
+        <div class="tag" data-cate="win">Windows</div>
+        <div class="tag" data-cate="mac">macOS</div>
+        <div class="tag" data-cate="design">设计</div>
+        <div class="tag" data-cate="dev">开发</div>
+        <div class="tag" data-cate="safe">安全</div>
+        <div class="tag" data-cate="media">媒体</div>
+        <div class="tag" data-cate="work">办公</div>
+        <dive class="tag" data-cate="web">网络</div> 
+      </div>
+    </div>
+  </header>
+
+  <!-- ****** 主体内容 ****** -->
+  <main class="inner">
+    <!-- 软件卡片列表，由 JS 动态填充 -->
+    <div id="list" class="grid"></div>
+  </main>
+
+  <!-- ****** 页脚 ****** -->
+  <footer>
+    © 2025 正版软件库 &nbsp;|&nbsp;
+    <a href="https://beian.miit.gov.cn" target="_blank">京ICP备xxxxxxxx号</a>
+  </footer>
+
+  <!-- =====================================================
+       下面开始是 JavaScript 逻辑
+       1. 定义软件数据（后续可换成 fetch('software.json')）
+       2. 渲染卡片
+       3. 搜索 & 分类过滤
+  ====================================================== -->
+  <script>
+    // ======  数据区  ======
+    // 每个对象代表一款软件；cate 数组方便多分类筛选
+    const SOFTWARE = [
+      {
+        name: "Chrome",
+        logo: "https://cdn.jsdelivr.net/gh/alrra/browser-logos/src/chrome/chrome_128x128.png",
+        desc: "Google 官方浏览器，快速安全。",
+        website: "https://www.google.com/chrome/",
+        cate: ["win", "mac","web"]
+      },
+      {
+        name: "VS Code",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg",
+        desc: "微软开源的轻量级代码编辑器。",
+        website: "https://code.visualstudio.com/",
+        cate: ["win", "mac", "dev"]
+      },
+      {
+        name: "Snipaste",
+        logo: "https://img-blog.csdnimg.cn/img_convert/22743ebc541623476548034acf6605bb.png",
+        desc: "简单强大的截图+贴图工具。",
+        website: "https://www.snipaste.com/",
+        cate: ["win", "mac", "design","web"]
+      },
+      {
+        name: "HandBrake",
+        logo: "https://handbrake.fr/img/logo.png",
+        desc: "开源视频格式转换神器。",
+        website: "https://handbrake.fr/",
+        cate: ["win", "mac", "design","media"]
+      },
+      {
+        name: "7-Zip",
+        logo: "https://ts1.tc.mm.bing.net/th/id/R-C.f6acab86a3cd214c55b2d4fa2c380e51?rik=dHvdRHtpjr485w&riu=http%3a%2f%2fimg3.downza.cn%2fdownload%2f201907%2f172654-5d25af5ebb561.jpg&ehk=dVcH%2b6af1y1YDEOiG2Dafbd6PBvqkjaavES4HtlEmPE%3d&risl=&pid=ImgRaw&r=0",
+        desc: "开源高压缩比解压缩软件。",
+        website: "https://www.7-zip.org/",
+        cate: ["win", "safe"]
+      },
+      {
+        name:"Firefox",
+        logo:"https://images.sj33.cn/uploads/202010/7-201010220959218.jpg",
+        desc:"开源浏览器，注重隐私保护。",
+        website:"https://www.mozilla.org/zh-CN/firefox/new/",
+        cate:["win","mac","web"]
+      },
+      {
+        name:"Adobe Photoshop",
+        logo:"https://ts4.tc.mm.bing.net/th/id/OIP-C.cLeOXxPMmueZcBKk22-hsAHaFW?rs=1&pid=ImgDetMain&o=7&rm=3",
+        desc:"专业图像处理软件。",
+        website:"https://www.adobe.com/cn/products/photoshop.html",
+        cate:["win","mac","design"]
+      },
+      {
+        name:"thunderbird",
+        logo:"https://store-images.s-microsoft.com/image/apps.35029.14299881443157287.51832ff2-ee23-4073-9058-b88552bc7a10.add5cd70-f8a0-45bc-9b91-ee78550cf20e",
+        desc:"免费开源的电子邮件客户端。",
+        website:"https://www.thunderbird.net/zh-CN/",
+        cate:["win","mac","web"]
+      },
+      {
+        name:"Poyplayer",
+        logo:"https://i-blog.csdnimg.cn/direct/582aab91717a4db89aec67146897ad58.jpeg",
+        desc:"功能强大的多媒体播放器。",
+        website:"https://www.potplayer.cn/",
+        cate:["win","media"]
+      },
+      {
+        name:"Steam",
+        logo:"https://www.baomiao.cn/games/wp-content/uploads/2022/09/image-571.png",
+        desc:"全球最大的数字游戏发行平台。",
+        website:"https://store.steampowered.com/",
+        cate:["win","mac","web"]
+      },
+      {
+        name:"Microsoft Office",
+        logo:"https://image.yesky.com/uploadImages/2021/005/44/0PV3L1WNK1II.jpg",
+        desc:"微软官方办公软件套装。",
+        website:"https://www.microsoft.com/zh-cn/microsoft-365",
+        cate:["win","mac","work"]
+      },
+      {
+        name:"Audodesk AutoCAD",
+        logo:"https://xiazai-fd.zol-img.com.cn/t_s200x150/g5/M00/0B/01/ChMkJlknxmeIUgLxAABY37mBoOIAAcoAAK67nYAAFj3198.jpg",
+        desc:"专业的计算机辅助设计软件。",
+        website:"https://www.autodesk.com.cn/products/autocad/trial-intake",
+        cate:["win","design"]
+      },
+      {
+        name:"Bandzip",
+        logo:"https://image.yesky.com/uploadImages/2023/321/24/OUN4866QK13D.jpg",
+        desc:"快速高效的压缩解压工具。",
+        website:"https://www.bandisoft.com/bandzip/",
+        cate:["win","mac","web"]
+      },
+      {
+        name:"Matlab",
+        logo:"https://tse3-mm.cn.bing.net/th/id/OIP-C.dIbkVKk5H9Pcnb2voPldeQHaFa?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+        desc:"强大的数学计算与仿真软件。",
+        website:"https://www.mathworks.com/products/matlab.html",
+        cate:["win","mac","dev"]
+      },
+      {
+        name:"OBS Studio",
+        logo:"https://eshop.macsales.com/blog/wp-content/uploads/2020/06/OBS_Studio_Logo.png",
+        desc:"开源直播和录屏软件。",
+        website:"https://obsproject.com/zh-cn",
+        cate:["win","mac","media"]
+      },
+      {
+        name:"Oracal VirtualBox",
+        logo:"file:///E:/virtualbox/VirtualBox_70px.png",
+        desc:"强大的开源虚拟机软件。",
+        website:"https://www.virtualbox.org/",
+        cate:["win","mac","dev"]
+      },
+      {
+        name:"VMware Workstation",
+        logo:"https://tse2-mm.cn.bing.net/th/id/OIP-C.HYUimEUiYnlVmX9jfxLUMgHaHa?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+        desc:"专业的虚拟化软件解决方案。",
+        website:"https://www.vmware.com/products/desktop-hypervisor/workstation-and-fusion.html",
+        cate:["win","mac","dev"]
+      },
+      {
+        name:"Geek Uninstaller",
+        logo:"https://pc3.gtimg.com/softmgr/logo/48/24068_48_1575518829.png",
+        desc:"轻量级软件卸载工具。",
+        website:"https://geekuninstaller.com/",
+        cate:["win","safe","dev"]
+      },
+      {
+        name:"图吧工具箱",
+        logo:"https://www.rjshe.com/zb_users/upload/2024/09/202409221727020180277883.png",
+        desc:"集成多种实用系统工具。", 
+        website:"https://www.tubagongju.cn/download.html",
+        cate:["win","safe","dev"] 
+      },
+      {
+        name:"Visual Studio",
+        logo:"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visualstudio/visualstudio-plain.svg",
+        desc:"微软旗舰级集成开发环境。",
+        website:"https://visualstudio.microsoft.com/zh-hans/",
+        cate:["win","dev"]
+      },
+      {
+        name:"Github Desktop",
+        logo:"https://laod.cn/wp-content/uploads/2015/06/GitHub.png",
+        desc:"GitHub 官方桌面客户端。",
+        website:"https://desktop.github.com/",
+        cate:["win","mac","dev"]
+      },
+    ];
+
+    // ======  获取 DOM 元素  ======
+    const listEl   = document.getElementById('list');   // 卡片容器
+    const searchEl = document.getElementById('search'); // 搜索框
+    let currentCate = 'all';                            // 当前选中的分类
+
+    // ======  渲染函数  ======
+    function render(list) {
+      // 如果没有符合条件的软件，显示提示
+      if (!list.length) {
+        listEl.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999">暂无匹配软件</p>';
+        return;
+      }
+
+      // 把数组映射成 HTML 字符串，一次性插入
+      listEl.innerHTML = list.map(s => `
+        <div class="card" data-cate="${s.cate.join(' ')}">
+          <div>
+            <div class="card-hd">
+              <!-- 软件 Logo；onerror 是兜底图 -->
+              <img class="card-logo" src="${s.logo}" alt="${s.name}" onerror="this.src='https://i.imgur.com/4A1J9KK.png'">
+              <div class="card-title">${s.name}</div>
+            </div>
+            <div class="card-desc">${s.desc}</div>
+          </div>
+          <div class="card-ft">
+            <!-- 点击后先到过渡页（out.html），再跳转官网，防止权重流失 -->
+            <a class="btn" href="out.html?to=${encodeURIComponent(s.website)}" target="_blank">前往官网</a>
+          </div>
+        </div>`).join('');
+    }
+
+    // ======  过滤函数：同时满足分类 + 搜索关键字  ======
+    function filter() {
+      const kw = searchEl.value.trim().toLowerCase();   // 获取输入关键字并转小写
+      const tmp = SOFTWARE.filter(s =>
+        // 分类筛选
+        (currentCate === 'all' || s.cate.includes(currentCate)) &&
+        // 关键字筛选：支持名称或描述
+        (s.name.toLowerCase().includes(kw) || s.desc.toLowerCase().includes(kw))
+      );
+      render(tmp);
+    }
+
+    // ======  分类按钮点击事件  ======
+    document.querySelectorAll('.tag').forEach(tag => {
+      tag.addEventListener('click', () => {
+        // 先移除旧激活样式
+        document.querySelector('.tag.active').classList.remove('active');
+        // 再添加新激活样式
+        tag.classList.add('active');
+        // 更新当前分类变量
+        currentCate = tag.dataset.cate;
+        // 重新过滤 & 渲染
+        filter();
+      });
+    });
+
+    // ======  搜索框输入事件  ======
+    searchEl.addEventListener('input', filter);
+
+    // ======  首次加载时渲染全部软件  ======
+    render(SOFTWARE);
+  </script>
+</body>
+</html>
